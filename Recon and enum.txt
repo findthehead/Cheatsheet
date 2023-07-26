@@ -1,0 +1,22 @@
+========================================bash===================================================
+for i in {1..255}; do (ping -c 1 192.168.1.${i} | grep "bytes from" &); done
+
+If you suspect that a host is active but is blocking ICMP ping requests, you could also check some common ports using a tool like netcat.Port scanning in bash can be done (ideally) entirely natively:
+
+for i in {1..65535}; do (echo > /dev/tcp/192.168.1.1/$i) >/dev/null 2>&1 && echo $i is open; do
+
+
+==============================================nmap==========================================================
+nmap -sS -Vv --script vuln  10.10.147.159
+nmap -sV --script http-wordpress-enum <target>
+nmap --script http-wordpress-enum --script-args check-latest=true,search-limit=10 <target>
+nmap --script http-wordpress-enum --script-args type="themes" <target>
+
+
+================================================misc========================================================
+wpscan --url http://dc-2/ --enumerate ap,u,t
+smbclient -L ////ip//
+
+#nfs
+showmount -e MACHINE_IP
+mount -t nfs MACHINE_IP:home/user/storage atack_machine/path/storage
