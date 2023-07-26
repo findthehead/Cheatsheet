@@ -1,0 +1,89 @@
+ tcp contains "user" : to see the stream of any username and what command they are putting in shell of tcp stream
+
+ http contains "password" : 
+
+=======================================================other filters==========================================================
+http.request.method == POST
+
+
+
+   Display filters:
+        IP address filter: ip.addr == 192.168.0.1
+        Source or destination IP filter: ip.src == 192.168.0.1 or ip.dst == 192.168.0.1
+        Protocol filter: tcp or udp or http
+        Port filter: tcp.port == 80 or udp.port == 53
+        MAC address filter: eth.addr == 00:11:22:33:44:55
+
+    Capture filters (used when starting a new capture):
+        IP address filter: host 192.168.0.1
+        Port filter: port 80
+        Network filter: net 192.168.0.0/24
+
+    Logical operators:
+        AND operator: ip.addr == 192.168.0.1 and tcp.port == 80
+        OR operator: ip.addr == 192.168.0.1 or ip.addr == 192.168.0.2
+        NOT operator: not ip.addr == 192.168.0.1
+
+    Protocol-specific filters:
+        HTTP filter: http
+        DNS filter: dns
+        FTP filter: ftp
+        SMTP filter: smtp
+
+    Display filter modifiers:
+        Apply filter to specific protocol layer: ip.addr == 192.168.0.1 && http
+        Limit the number of displayed packets: tcp.flags.syn == 1[0:5]
+
+    Ethernet Filters:
+        eth.addr: Ethernet address filter
+        eth.dst: Destination MAC address filter
+        eth.src: Source MAC address filter
+
+    IP Filters:
+        ip.addr: IP address filter
+        ip.dst: Destination IP address filter
+        ip.src: Source IP address filter
+        ip.proto: IP protocol filter
+
+    TCP Filters:
+        tcp.port: TCP port filter
+        tcp.flags: TCP flags filter
+        tcp.stream: TCP stream filter
+
+    UDP Filters:
+        udp.port: UDP port filter
+
+    ICMP Filters:
+        icmp.type: ICMP type filter
+        icmp.code: ICMP code filter
+
+    HTTP Filters:
+        http: HTTP filter
+
+    DNS Filters:
+        dns: DNS filter
+
+    FTP Filters:
+        ftp: FTP filter
+
+    SMTP Filters:
+        smtp: SMTP filter
+
+    SSL/TLS Filters:
+        ssl: SSL/TLS filter
+        tls: TLS filter
+
+    Wi-Fi Filters:
+        wlan.sa: Source Wi-Fi MAC address filter
+        wlan.da: Destination Wi-Fi MAC address filter
+        wlan.addr: Wi-Fi MAC address filter
+
+    Logical Operators:
+        and: Logical AND operator
+        or: Logical OR operator
+        not: Logical NOT operator
+
+    Capture Filters:
+        host: Capture filter based on host
+        port: Capture filter based on port
+        net: Capture filter based on network
